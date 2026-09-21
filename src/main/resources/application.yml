@@ -1,0 +1,30 @@
+spring:
+    application:
+        name: timetables
+    datasource:
+        url: jdbc:postgresql://localhost:5432/timetables
+        username: heiner
+        driver-class-name: org.postgresql.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+        open-in-view: false
+    rabbitmq:
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest
+
+# DB Station&Service AG
+bahn:
+    api:
+        client-id: ea21ead4c40f5012665229379875678a
+        key: 6079781f81e2bd6e69a2e62ffe83a337
+
+# Optional: Logging-Konfiguration
+logging:
+    level:
+        "[org.springframework]": INFO
+        "[org.hibernate]": INFO
+        "[eu.bilch.timetables]": DEBUG

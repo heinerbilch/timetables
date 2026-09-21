@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TimetablesApplication<timetables>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "eu.bilch.timetables.TimetablesApplication",
+            "projectName": "timetables",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
