@@ -15,6 +15,8 @@ spring:
         port: 5672
         username: guest
         password: guest
+    codec:
+        max-in-memory-size: 500KB
 
 # DB Station&Service AG
 bahn:

@@ -22,9 +22,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework:spring-oxm")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-amqp") // RabbitMQ
-    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.22.2")
     implementation("io.github.threeten-jaxb:threeten-jaxb-core:2.2.0")
     // Jackson für JSON
@@ -50,7 +50,8 @@ openApiGenerate {
         "library" to "webclient", // Verwende WebClient für Spring 5+
         "useBeanValidation" to "true",
         "useSpringBoot4" to "true",
-        "withXml" to "true"
+        "withXml" to "true",
+        "reactive" to "true"
     )
 }
 
@@ -63,9 +64,9 @@ sourceSets {
 }
 
 // Füge das generierte Verzeichnis zum Source-Set hinzu
-tasks.named("compileJava") {
-    dependsOn("openApiGenerate")
-}
+//tasks.named("compileJava") {
+//    dependsOn("openApiGenerate")
+//}
 
 tasks.withType<Test> {
 	useJUnitPlatform()
