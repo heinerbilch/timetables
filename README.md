@@ -15,8 +15,6 @@ abruft, in ein eigenes Datenmodell überführt und in PostgreSQL speichert.
   Plan-Zeiten); der Zugtyp wird zentral pro Zug verwaltet.
 - **Verspätungsberechnung:** Die Verspätung in Minuten wird aus Plan- und Ist-Zeiten ermittelt
   (Abfahrt vor Ankunft), ohne redundante Spalten in der Datenbank.
-- **RabbitMQ:** Infrastruktur für Exchange (`bahn.exchange`), Queue (`bahn.fahrten`) und einen
-  Consumer ist vorbereitet.
 
 ## Datenmodell (3NF)
 
@@ -32,7 +30,6 @@ Laufzeit berechnet (`TimetableService.verspaetungMinuten`).
 
 - Java 25
 - PostgreSQL (lokal, Standard: `localhost:5432/timetables`)
-- RabbitMQ (lokal, Standard: `localhost:5672`) – nur für die vorbereitete MQ-Infrastruktur nötig
 - Zugangsdaten für die [DB Timetables API](https://developers.deutschebahn.com/db-api-marketplace/apis/timetables/v1)
   (kostenlose Registrierung im DB API Marketplace)
 
@@ -46,7 +43,7 @@ export BAHN_CLIENT_SECRET="<API-Key>"
 ```
 
 Die übrige Konfiguration liegt in `src/main/resources/application.yml`
-(Datenbank-Verbindung, RabbitMQ, Logging, DB-API-Endpunkt).
+(Datenbank-Verbindung, Logging, DB-API-Endpunkt).
 
 ## Bauen und Starten
 
@@ -68,7 +65,7 @@ zu beenden.
 - `TimetableServiceTest`: Unit-Tests für das Mapping (`toFahrt`) und die Verspätungsberechnung –
   laufen ohne Datenbank.
 - `TimetablesApplicationTests.contextLoads`: startet den vollen Spring-Kontext und erfordert
-  eine erreichbare PostgreSQL- und RabbitMQ-Instanz.
+  eine erreichbare PostgreSQL-Instanz.
 
 ## Projektstruktur
 
@@ -79,8 +76,6 @@ src/main/java/eu/bilch/timetables/
 ├── TimetableService.java     # Scheduler, Mapping, Persistenz, Verspätungsberechnung
 ├── FahrtRepository.java     # Spring-Data-Repository für Fahrten
 ├── ZugRepository.java        # Spring-Data-Repository für Züge
-├── RabbitMQConfig.java       # Exchange, Queue und Binding
-├── RabbitMQConsumer.java     # Beispiel-Consumer (loggt Nachrichten)
 ├── model/                    # JPA-Entitäten (Fahrt, Zug)
 └── bahnclient/               # JAXB-Modell der XML-Antworten der DB-API
 
