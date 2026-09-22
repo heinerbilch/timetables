@@ -7,14 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 
+import eu.bilch.timetables.bahnclient.Stations;
 import eu.bilch.timetables.bahnclient.Timetable;
 import reactor.core.publisher.Mono;
 
 @Service
 public class BahnApiService {
-    // API for passenger information for train stations operated by DB
-    // Station&Service AG
-    private static final String API_URL = "https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1/station/H";
     private final WebClient webClient;
     private final Logger logger = LoggerFactory.getLogger(BahnApiService.class);
 
@@ -22,12 +20,13 @@ public class BahnApiService {
         this.webClient = webClient;
     }
 
+    @Scheduled(fixedRate = 100000) // 10 Sekunden
     public void fetchAndPublishFahrten() {
         try {
-            String response = webClient.get()
-                    .uri(API_URL)
+            Stations response = webClient.get()
+                    .uri("/station/BLS")
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(Stations.class)
                     .block(); // Blockiert, um synchron zu arbeiten (für Demo okay)
             logger.info("Empfangene Nachricht: {}", response);
         } catch (WebClientRequestException e) {
@@ -35,17 +34,6 @@ public class BahnApiService {
         }
     }
 
-//    @Scheduled(fixedRate = 100000) // 10 Sekunden
-    public void fetchStation() {
-    // Verwendung
-//    Mono<MultipleStationData> stationDataMono = webClient.get()
-//            .uri("/station/8000105")
-//            .retrieve()
-//            .bodyToMono(MultipleStationData.class);
-//    logger.info("Mono Station Data {}", stationDataMono.block());
-    }
-
-    @Scheduled(fixedRate = 100000) // 10 Sekunden
     public void fetchTimetable() {
     // Verwendung
     Mono<Timetable> timetableMono = webClient.get()

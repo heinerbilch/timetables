@@ -22,7 +22,7 @@ spring:
 bahn:
     api:
         client-id: ea21ead4c40f5012665229379875678a
-        key: 6079781f81e2bd6e69a2e62ffe83a337
+        key: ${BAHN_CLIENT_SECRET}
 
 # Optional: Logging-Konfiguration
 logging:
