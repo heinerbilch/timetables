@@ -15,9 +15,18 @@ import eu.bilch.timetables.bahnclient.Timetable;
 @Service
 public class BahnApiService {
     private final WebClient webClient;
+    private final ApiRateLimiter rateLimiter = new ApiRateLimiter();
 
     public BahnApiService(WebClient webClient) {
         this.webClient = webClient;
+    }
+
+    /**
+     * Blockiert, bis der nächste API-Aufruf laut DB-Nutzungsbedingung erlaubt ist
+     * (maximal eine Abfrage pro Sekunde, global für alle Aufrufer).
+     */
+    void erwarteRateLimitFreigabe() {
+        rateLimiter.erwarteFreigabe();
     }
 
     /**
@@ -29,6 +38,7 @@ public class BahnApiService {
      * @return all matching stations
      */
     public Stations fetchStations(String station) {
+        rateLimiter.erwarteFreigabe();
         return webClient.get()
                 .uri("/station/" + station)
                 .retrieve()
@@ -51,6 +61,7 @@ public class BahnApiService {
      * @return a timetable
      */
     public Timetable fetchFchg(String station) {
+        rateLimiter.erwarteFreigabe();
         return webClient.get()
                 .uri("/fchg/" + station)
                 .retrieve()
@@ -73,6 +84,7 @@ public class BahnApiService {
      * @return a timetable
      */
     public Timetable fetchRchg(String station) {
+        rateLimiter.erwarteFreigabe();
         return webClient.get()
                 .uri("/rchg/" + station)
                 .retrieve()
@@ -99,6 +111,7 @@ public class BahnApiService {
      * @return a timetable
      */
     public Timetable fetchPlan(String station, String date, String hour) {
+        rateLimiter.erwarteFreigabe();
         return webClient.get()
                 .uri("/plan/" + station + "/" + date + "/" + hour)
                 .retrieve()

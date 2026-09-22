@@ -41,8 +41,16 @@ public class TimetableService {
 
     @Scheduled(initialDelay = 3000, fixedDelay = 60000)
     public void aktualisiereFahrten() {
+        for (Bahnhof bahnhof : Bahnhof.values()) {
+            for (String evaNummer : bahnhof.getEvaNummern()) {
+                aktualisiereFahrtenFuerEva(evaNummer);
+            }
+        }
+    }
+
+    void aktualisiereFahrtenFuerEva(String evaNummer) {
         try {
-            Timetable timetable = bahnApiService.fetchFchg(Bahnhof.HAMBURG_HBF.getEvaNummer());
+            Timetable timetable = bahnApiService.fetchFchg(evaNummer);
             if (timetable == null || timetable.getStops() == null) {
                 return;
             }
@@ -53,7 +61,8 @@ public class TimetableService {
                 }
             }
         } catch (Exception e) {
-            logger.warn("Fehler beim Aktualisieren der Fahrten: {}", e.getLocalizedMessage());
+            logger.warn("Fehler beim Aktualisieren der Fahrten für EVA {}: {}",
+                    evaNummer, e.getLocalizedMessage());
         }
     }
 
