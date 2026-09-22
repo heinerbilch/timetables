@@ -24,7 +24,7 @@ import eu.bilch.timetables.model.Zug;
 @Service
 public class TimetableService {
 
-    private static final String HAMBURG_HBF = "8000105";
+    private static final String HAMBURG_HBF = "8002549";
     private static final DateTimeFormatter ZEIT_FORMAT = DateTimeFormatter.ofPattern("yyMMddHHmm");
 
     private final BahnApiService bahnApiService;
