@@ -28,7 +28,7 @@ dependencies {
     implementation("io.github.threeten-jaxb:threeten-jaxb-core:2.2.0")
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("io.netty:netty-resolver-dns-native-macos::osx-aarch_64")
-	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.amqp:spring-rabbit-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
