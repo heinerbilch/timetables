@@ -1,6 +1,10 @@
 package eu.bilch.timetables;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -174,5 +178,26 @@ class TimetableServiceTest {
                 LocalDateTime.of(2026, 9, 22, 8, 40), null);
 
         assertThat(service.verspaetungMinuten(fahrt)).isEqualTo(7);
+    }
+
+    @Test
+    void aktualisiereFahrtenFuerEvaFaengtApiFehlerAb() {
+        BahnApiService api = mock(BahnApiService.class);
+        when(api.fetchFchg("8002549")).thenThrow(new RuntimeException("API nicht erreichbar"));
+        TimetableService serviceMitApi = new TimetableService(api, null, null);
+
+        assertThatCode(() -> serviceMitApi.aktualisiereFahrtenFuerEva("8002549"))
+                .doesNotThrowAnyException();
+        verify(api).fetchFchg("8002549");
+    }
+
+    @Test
+    void aktualisiereFahrtenFuerEvaMitLeeremTimetableTutNichts() {
+        BahnApiService api = mock(BahnApiService.class);
+        when(api.fetchFchg("8000105")).thenReturn(new Timetable());
+        TimetableService serviceMitApi = new TimetableService(api, null, null);
+
+        assertThatCode(() -> serviceMitApi.aktualisiereFahrtenFuerEva("8000105"))
+                .doesNotThrowAnyException();
     }
 }

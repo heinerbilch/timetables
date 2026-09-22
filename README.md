@@ -7,7 +7,8 @@ abruft, in ein eigenes Datenmodell überführt und in PostgreSQL speichert.
 ## Funktionen
 
 - **Periodischer Datenabruf:** Ein Scheduler (`TimetableService`) lädt alle 60 Sekunden die
-  vollständigen Änderungsdaten (FCHG – *full changes*) für Hamburg Hbf (EVA 8002549).
+  vollständigen Änderungsdaten (FCHG – *full changes*) aller Bahnhöfe aus `bahnclient/Bahnhof`
+  (Haupt- und S-Bahn-EVA-Nummern, derzeit 13 Abfragen).
 - **Mapping:** Die XML-Antwort der API (`Timetable` → `Stop` → `Arrival`/`Departure`) wird auf
   das JPA-Datenmodell (`Zug`, `Fahrt`) abgebildet – inklusive Zugnummer, Zugtyp, Start- und
   Zielbahnhof, Plan- und Ist-Zeiten.
@@ -90,6 +91,9 @@ src/main/resources/           # application.yml
   prüft das Schema beim Start nur noch (`ddl-auto: validate`). Neue Schema-Änderungen als weitere
   versionierte SQL-Dateien hinzufügen (`V2__...`, `V3__...` usw.).
 - Die unterstützten Bahnhöfe mit EVA-Nummer (Haupt-ID) und optionaler S-Bahn-Nummer sind im
-  Enum `bahnclient/Bahnhof` hinterlegt. Der Scheduler ruft derzeit `Bahnhof.HAMBURG_HBF` ab.
+  Enum `bahnclient/Bahnhof` hinterlegt. Der Scheduler ruft alle Bahnhöfe ab.
 - Beim Start prüft `BahnhofVerifikation` die hinterlegten EVA-Nummern gegen die API
   (`/station/{eva}`) und loggt Warnungen bei Abweichungen; der Start bricht dabei nie ab.
+- **Rate-Limit:** Die DB Timetables API erlaubt maximal eine Abfrage pro Sekunde. `ApiRateLimiter`
+  (in `BahnApiService`) erzwingt den Mindestabstand global für alle Aufrufe – auch zwischen
+  Scheduler und Startup-Verifikation.

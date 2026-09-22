@@ -1,5 +1,7 @@
 package eu.bilch.timetables.bahnclient;
 
+import java.util.List;
+
 /**
  * Von der DB Timetables API unterstützte Bahnhöfe mit ihrer EVA-Nummer als
  * Haupt-ID und optionaler separater ID für S-Bahn- bzw. Tiefbahnsteige.
@@ -37,5 +39,13 @@ public enum Bahnhof {
 
     public String getSbahnNummer() {
         return sbahnNummer;
+    }
+
+    /**
+     * Alle abzufragenden EVA-Nummern des Bahnhofs: Haupt-ID und, sofern vorhanden,
+     * die separate S-Bahn-ID.
+     */
+    public List<String> getEvaNummern() {
+        return sbahnNummer == null ? List.of(evaNummer) : List.of(evaNummer, sbahnNummer);
     }
 }
