@@ -23,6 +23,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework:spring-oxm")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.22.2")
     implementation("io.github.threeten-jaxb:threeten-jaxb-core:2.2.0")
 	runtimeOnly("org.postgresql:postgresql")

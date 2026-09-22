@@ -7,9 +7,12 @@ spring:
         driver-class-name: org.postgresql.Driver
     jpa:
         hibernate:
-            ddl-auto: update
-        show-sql: false
+            show-sql: false
+            ddl-auto: validate
+
         open-in-view: false
+    flyway:
+        enabled: true
     codec:
         max-in-memory-size: 500KB
 
@@ -25,3 +28,4 @@ logging:
         "[org.springframework]": INFO
         "[org.hibernate]": INFO
         "[eu.bilch.timetables]": DEBUG
+        "[org.flywaydb]": INFO
