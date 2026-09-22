@@ -21,7 +21,7 @@ import eu.bilch.timetables.model.Zug;
 
 class TimetableServiceTest {
 
-    private final TimetableService service = new TimetableService(null, null, null);
+    private final TimetableService service = new TimetableService(null, null, null, null);
 
     @Test
     void toFahrtMitAnkunftUndAbfahrt() {
@@ -185,7 +185,7 @@ class TimetableServiceTest {
     void aktualisiereFahrtenFuerEvaFaengtApiFehlerAb() {
         BahnApiService api = mock(BahnApiService.class);
         when(api.fetchFchg("8002549")).thenThrow(new RuntimeException("API nicht erreichbar"));
-        TimetableService serviceMitApi = new TimetableService(api, null, null);
+        TimetableService serviceMitApi = new TimetableService(api, null, null, null);
 
         assertThatCode(() -> serviceMitApi.aktualisiereFahrtenFuerEva("8002549"))
                 .doesNotThrowAnyException();
@@ -196,7 +196,7 @@ class TimetableServiceTest {
     void aktualisiereFahrtenFuerEvaMitLeeremTimetableTutNichts() {
         BahnApiService api = mock(BahnApiService.class);
         when(api.fetchFchg("8000105")).thenReturn(new Timetable());
-        TimetableService serviceMitApi = new TimetableService(api, null, null);
+        TimetableService serviceMitApi = new TimetableService(api, null, null, null);
 
         assertThatCode(() -> serviceMitApi.aktualisiereFahrtenFuerEva("8000105"))
                 .doesNotThrowAnyException();

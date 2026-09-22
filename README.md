@@ -23,6 +23,7 @@ abruft, in ein eigenes Datenmodell überführt und in PostgreSQL speichert.
 |----------|--------------------------------------------------------------------------------------|
 | `zug`    | `zugNummer` (PK), `zugTyp`                                                            |
 | `fahrten`| `fahrtId` (PK), `zug_nummer` (FK → `zug`), `startBahnhof`, `zielBahnhof`, `abfahrtszeitPlan`, `ankunftszeitPlan`, `abfahrtszeitIst`, `ankunftszeitIst`, `timestamp` |
+| `bahnhof`| `evaNummer` (PK), `name`, `typ` (`HBF`/`SBAHN`), `rang` |
 
 Abgeleitete Attribute wie Verspätung oder Status werden bewusst nicht gespeichert, sondern zur
 Laufzeit berechnet (`TimetableService.verspaetungMinuten`).
@@ -90,8 +91,10 @@ src/main/resources/           # application.yml
   liegen in `src/main/resources/db/migration` (`V1__init.sql` = aktuelles Baseline-Schema). Hibernate
   prüft das Schema beim Start nur noch (`ddl-auto: validate`). Neue Schema-Änderungen als weitere
   versionierte SQL-Dateien hinzufügen (`V2__...`, `V3__...` usw.).
-- Die unterstützten Bahnhöfe mit EVA-Nummer (Haupt-ID) und optionaler S-Bahn-Nummer sind im
-  Enum `bahnclient/Bahnhof` hinterlegt. Der Scheduler ruft alle Bahnhöfe ab.
+- Die unterstützten Bahnhöfe liegen in der Tabelle `bahnhof` (Spring Data: `BahnhofRepository`)
+  und werden beim Start aus dem Enum `bahnclient/Bahnhof` geseedet (Neu anlegen/Aktualisieren,
+  nie Löschen – manuelle Ergänzungen in der DB bleiben erhalten). S-Bahn-EVAs sind eigene Zeilen
+  mit `typ = 'SBAHN'`. Der Scheduler ruft alle in der DB hinterlegten EVAs ab.
 - Beim Start prüft `BahnhofVerifikation` die hinterlegten EVA-Nummern gegen die API
   (`/station/{eva}`) und loggt Warnungen bei Abweichungen; der Start bricht dabei nie ab.
 - **Rate-Limit:** Die DB Timetables API erlaubt maximal eine Abfrage pro Sekunde. `ApiRateLimiter`
