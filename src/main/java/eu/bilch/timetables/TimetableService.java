@@ -69,6 +69,10 @@ public class TimetableService {
             zugNummer = trainLine.getC() + " " + trainLine.getN();
         }
         String zugTyp = trainLine != null ? trainLine.getC() : null;
+        if (zugNummer == null) {
+            logger.warn("Stop ohne ermittelbare Zugnummer wird übersprungen: {}", stop.getId());
+            return null;
+        }
         Zug zug = new Zug(zugNummer, zugTyp);
         String startBahnhof = ankunft != null ? ersteStation(ankunft.getPpth()) : null;
         String zielBahnhof = abfahrt != null ? letzteStation(abfahrt.getPpth()) : null;

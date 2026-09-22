@@ -101,6 +101,17 @@ class TimetableServiceTest {
     }
 
     @Test
+    void toFahrtOhneZugnummerLiefertNull() {
+        Stop stop = new Stop();
+        Departure abfahrt = new Departure();
+        abfahrt.setPt("2609221200");
+        abfahrt.setPpth("Hamburg Hbf|Lübeck Hbf");
+        stop.setDepartures(List.of(abfahrt));
+
+        assertThat(service.toFahrt(stop)).isNull();
+    }
+
+    @Test
     void toFahrtMitUnparsebarerZeit() {
         Stop stop = new Stop();
         Departure abfahrt = new Departure();
