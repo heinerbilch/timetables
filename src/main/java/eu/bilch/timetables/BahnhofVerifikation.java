@@ -6,32 +6,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import eu.bilch.timetables.bahnclient.Bahnhof;
 import eu.bilch.timetables.bahnclient.Station;
 import eu.bilch.timetables.bahnclient.Stations;
+import eu.bilch.timetables.model.BahnhofEntity;
 
 /**
- * Prüft beim Start der Applikation die im Enum {@link Bahnhof} hinterlegten
+ * Prüft beim Start der Applikation die in der Tabelle bahnhof hinterlegten
  * EVA-Nummern gegen die DB Timetables API und loggt Warnungen bei Abweichungen.
+ * Läuft nach dem Seeding, damit auch frisch angelegte Einträge geprüft werden.
  */
 @Component
 public class BahnhofVerifikation {
 
     private final BahnApiService bahnApiService;
+    private final BahnhofRepository bahnhofRepository;
     private final Logger logger = LoggerFactory.getLogger(BahnhofVerifikation.class);
 
-    public BahnhofVerifikation(BahnApiService bahnApiService) {
+    public BahnhofVerifikation(BahnApiService bahnApiService, BahnhofRepository bahnhofRepository) {
         this.bahnApiService = bahnApiService;
+        this.bahnhofRepository = bahnhofRepository;
     }
 
+    @Order(10)
     @EventListener(ApplicationReadyEvent.class)
     public void pruefeAlleBahnhoefe() {
-        for (Bahnhof bahnhof : Bahnhof.values()) {
+        for (BahnhofEntity bahnhof : bahnhofRepository.findAll()) {
             String abweichungen = pruefe(bahnhof);
             if (abweichungen != null) {
-                logger.warn("Bahnhof {} (EVA {}): {}", bahnhof.getName(), bahnhof.getEvaNummer(), abweichungen);
+                logger.warn("Bahnhof {} (EVA {}): {}", bahnhof.getName(), bahnhof.getEvaNummer(),
+                        abweichungen);
             } else {
                 logger.info("Bahnhof {} (EVA {}) durch die API bestätigt", bahnhof.getName(),
                         bahnhof.getEvaNummer());
@@ -39,19 +45,8 @@ public class BahnhofVerifikation {
         }
     }
 
-    String pruefe(Bahnhof bahnhof) {
-        StringBuilder abweichungen = new StringBuilder();
-        String evaMeldung = pruefeNummer(bahnhof.getName(), bahnhof.getEvaNummer());
-        if (evaMeldung != null) {
-            abweichungen.append(evaMeldung);
-        }
-        if (bahnhof.getSbahnNummer() != null) {
-            String sbahnMeldung = pruefeNummer(bahnhof.getName() + " (S-Bahn)", bahnhof.getSbahnNummer());
-            if (sbahnMeldung != null) {
-                abweichungen.append(sbahnMeldung);
-            }
-        }
-        return abweichungen.length() == 0 ? null : abweichungen.toString();
+    String pruefe(BahnhofEntity bahnhof) {
+        return pruefeNummer(bahnhof.getName(), bahnhof.getEvaNummer());
     }
 
     private String pruefeNummer(String bezeichnung, String nummer) {

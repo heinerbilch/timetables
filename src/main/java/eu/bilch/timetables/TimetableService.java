@@ -14,11 +14,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import eu.bilch.timetables.bahnclient.Arrival;
-import eu.bilch.timetables.bahnclient.Bahnhof;
 import eu.bilch.timetables.bahnclient.Departure;
 import eu.bilch.timetables.bahnclient.Stop;
 import eu.bilch.timetables.bahnclient.Timetable;
 import eu.bilch.timetables.bahnclient.TrainLine;
+import eu.bilch.timetables.model.BahnhofEntity;
 import eu.bilch.timetables.model.Fahrt;
 import eu.bilch.timetables.model.Zug;
 
@@ -28,23 +28,23 @@ public class TimetableService {
     private static final DateTimeFormatter ZEIT_FORMAT = DateTimeFormatter.ofPattern("yyMMddHHmm");
 
     private final BahnApiService bahnApiService;
+    private final BahnhofRepository bahnhofRepository;
     private final FahrtRepository fahrtRepository;
     private final ZugRepository zugRepository;
     private final Logger logger = LoggerFactory.getLogger(TimetableService.class);
 
-    public TimetableService(BahnApiService bahnApiService, FahrtRepository fahrtRepository,
-            ZugRepository zugRepository) {
+    public TimetableService(BahnApiService bahnApiService, BahnhofRepository bahnhofRepository,
+            FahrtRepository fahrtRepository, ZugRepository zugRepository) {
         this.bahnApiService = bahnApiService;
+        this.bahnhofRepository = bahnhofRepository;
         this.fahrtRepository = fahrtRepository;
         this.zugRepository = zugRepository;
     }
 
     @Scheduled(initialDelay = 3000, fixedDelay = 60000)
     public void aktualisiereFahrten() {
-        for (Bahnhof bahnhof : Bahnhof.values()) {
-            for (String evaNummer : bahnhof.getEvaNummern()) {
-                aktualisiereFahrtenFuerEva(evaNummer);
-            }
+        for (BahnhofEntity bahnhof : bahnhofRepository.findAll()) {
+            aktualisiereFahrtenFuerEva(bahnhof.getEvaNummer());
         }
     }
 
