@@ -68,7 +68,7 @@ public class BahnhofSeeder {
             bestehend.setTyp(typ);
             geaendert = true;
         }
-        if (rang != bestehend.getRang()) {
+        if (!Integer.valueOf(rang).equals(bestehend.getRang())) {
             bestehend.setRang(rang);
             geaendert = true;
         }

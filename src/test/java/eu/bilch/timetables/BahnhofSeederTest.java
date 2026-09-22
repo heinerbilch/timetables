@@ -41,6 +41,18 @@ class BahnhofSeederTest {
     }
 
     @Test
+    void seedFuelltNullFelderNach() {
+        BahnhofEntity bestehend = new BahnhofEntity("8002549", "Hamburg Hbf", null, null);
+        when(bahnhofRepository.findById(any())).thenReturn(Optional.of(bestehend));
+
+        seeder.seed();
+
+        assertThat(bestehend.getTyp()).isEqualTo(BahnhofSeeder.TYP_HBF);
+        assertThat(bestehend.getRang()).isEqualTo(1);
+        verify(bahnhofRepository, org.mockito.Mockito.times(13)).save(any(BahnhofEntity.class));
+    }
+
+    @Test
     void seedSpeichertNichtsWennAllesBereitsAktuell() {
         when(bahnhofRepository.findById(any())).thenAnswer(invocation -> {
             String eva = invocation.getArgument(0);
