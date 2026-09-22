@@ -24,6 +24,11 @@ public class Fahrt {
             foreignKey = @ForeignKey(name = "fk_fahrt_zug"))
     private Zug zug;
 
+    @ManyToOne
+    @JoinColumn(name = "eva_nummer",
+            foreignKey = @ForeignKey(name = "fk_fahrt_bahnhof"))
+    private BahnhofEntity bahnhof;
+
     private String startBahnhof;
     private String zielBahnhof;
     private LocalDateTime abfahrtszeitPlan;
@@ -39,7 +44,15 @@ public class Fahrt {
     public Fahrt(Zug zug, String startBahnhof, String zielBahnhof,
             LocalDateTime abfahrtszeitPlan, LocalDateTime ankunftszeitPlan,
             LocalDateTime abfahrtszeitIst, LocalDateTime ankunftszeitIst) {
+        this(zug, null, startBahnhof, zielBahnhof, abfahrtszeitPlan, ankunftszeitPlan,
+                abfahrtszeitIst, ankunftszeitIst);
+    }
+
+    public Fahrt(Zug zug, BahnhofEntity bahnhof, String startBahnhof, String zielBahnhof,
+            LocalDateTime abfahrtszeitPlan, LocalDateTime ankunftszeitPlan,
+            LocalDateTime abfahrtszeitIst, LocalDateTime ankunftszeitIst) {
         this.zug = zug;
+        this.bahnhof = bahnhof;
         this.startBahnhof = startBahnhof;
         this.zielBahnhof = zielBahnhof;
         this.abfahrtszeitPlan = abfahrtszeitPlan;
@@ -63,6 +76,14 @@ public class Fahrt {
 
     public void setZug(Zug zug) {
         this.zug = zug;
+    }
+
+    public BahnhofEntity getBahnhof() {
+        return bahnhof;
+    }
+
+    public void setBahnhof(BahnhofEntity bahnhof) {
+        this.bahnhof = bahnhof;
     }
 
     public String getStartBahnhof() {
@@ -126,6 +147,7 @@ public class Fahrt {
         return "Fahrt{" +
                 "fahrtId=" + fahrtId +
                 ", zug=" + zug +
+                ", bahnhof=" + (bahnhof != null ? bahnhof.getEvaNummer() : null) +
                 ", startBahnhof='" + startBahnhof + '\'' +
                 ", zielBahnhof='" + zielBahnhof + '\'' +
                 ", abfahrtszeitPlan=" + abfahrtszeitPlan +

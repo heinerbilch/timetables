@@ -54,9 +54,15 @@ public class TimetableService {
             if (timetable == null || timetable.getStops() == null) {
                 return;
             }
+            BahnhofEntity bahnhof = bahnhofRepository.findById(evaNummer).orElse(null);
+            if (bahnhof == null) {
+                logger.warn("EVA {} ist nicht in der bahnhof-Tabelle hinterlegt", evaNummer);
+                return;
+            }
             for (Stop stop : timetable.getStops()) {
                 Fahrt fahrt = toFahrt(stop);
                 if (fahrt != null) {
+                    fahrt.setBahnhof(bahnhof);
                     speichereOderAktualisiere(fahrt);
                 }
             }
@@ -116,6 +122,9 @@ public class TimetableService {
                 .findFirst();
         if (treffer.isPresent()) {
             Fahrt bestehende = treffer.get();
+            if (bestehende.getBahnhof() == null) {
+                bestehende.setBahnhof(fahrt.getBahnhof());
+            }
             bestehende.setStartBahnhof(fahrt.getStartBahnhof());
             bestehende.setZielBahnhof(fahrt.getZielBahnhof());
             bestehende.setAbfahrtszeitIst(fahrt.getAbfahrtszeitIst());
