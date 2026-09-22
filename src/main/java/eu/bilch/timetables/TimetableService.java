@@ -19,6 +19,7 @@ import eu.bilch.timetables.bahnclient.Stop;
 import eu.bilch.timetables.bahnclient.Timetable;
 import eu.bilch.timetables.bahnclient.TrainLine;
 import eu.bilch.timetables.model.Fahrt;
+import eu.bilch.timetables.model.Zug;
 
 @Service
 public class TimetableService {
@@ -28,11 +29,14 @@ public class TimetableService {
 
     private final BahnApiService bahnApiService;
     private final FahrtRepository fahrtRepository;
+    private final ZugRepository zugRepository;
     private final Logger logger = LoggerFactory.getLogger(TimetableService.class);
 
-    public TimetableService(BahnApiService bahnApiService, FahrtRepository fahrtRepository) {
+    public TimetableService(BahnApiService bahnApiService, FahrtRepository fahrtRepository,
+            ZugRepository zugRepository) {
         this.bahnApiService = bahnApiService;
         this.fahrtRepository = fahrtRepository;
+        this.zugRepository = zugRepository;
     }
 
     @Scheduled(initialDelay = 3000, fixedDelay = 60000)
@@ -65,36 +69,44 @@ public class TimetableService {
             zugNummer = trainLine.getC() + " " + trainLine.getN();
         }
         String zugTyp = trainLine != null ? trainLine.getC() : null;
+        Zug zug = new Zug(zugNummer, zugTyp);
         String startBahnhof = ankunft != null ? ersteStation(ankunft.getPpth()) : null;
         String zielBahnhof = abfahrt != null ? letzteStation(abfahrt.getPpth()) : null;
         LocalDateTime ankunftszeitPlan = ankunft != null ? parseZeit(ankunft.getPt()) : null;
         LocalDateTime ankunftszeitIst = ankunft != null ? parseZeit(ankunft.getCt()) : null;
         LocalDateTime abfahrtszeitPlan = abfahrt != null ? parseZeit(abfahrt.getPt()) : null;
         LocalDateTime abfahrtszeitIst = abfahrt != null ? parseZeit(abfahrt.getCt()) : null;
-        Integer verspaetungMinuten = abfahrtszeitPlan != null && abfahrtszeitIst != null
-                ? verspaetungMinuten(abfahrtszeitPlan, abfahrtszeitIst)
-                : verspaetungMinuten(ankunftszeitPlan, ankunftszeitIst);
-        String status = abfahrtszeitIst != null || ankunftszeitIst != null ? "aktuell" : "geplant";
-        return new Fahrt(zugNummer, zugTyp, startBahnhof, zielBahnhof,
-                abfahrtszeitPlan, ankunftszeitPlan, abfahrtszeitIst, ankunftszeitIst,
-                verspaetungMinuten, status);
+        return new Fahrt(zug, startBahnhof, zielBahnhof,
+                abfahrtszeitPlan, ankunftszeitPlan, abfahrtszeitIst, ankunftszeitIst);
+    }
+
+    public Integer verspaetungMinuten(Fahrt fahrt) {
+        if (fahrt == null) {
+            return null;
+        }
+        if (fahrt.getAbfahrtszeitPlan() != null && fahrt.getAbfahrtszeitIst() != null) {
+            return (int) Duration.between(fahrt.getAbfahrtszeitPlan(), fahrt.getAbfahrtszeitIst()).toMinutes();
+        }
+        if (fahrt.getAnkunftszeitPlan() != null && fahrt.getAnkunftszeitIst() != null) {
+            return (int) Duration.between(fahrt.getAnkunftszeitPlan(), fahrt.getAnkunftszeitIst()).toMinutes();
+        }
+        return null;
     }
 
     private void speichereOderAktualisiere(Fahrt fahrt) {
-        List<Fahrt> vorhandene = fahrtRepository.findByZugNummer(fahrt.getZugNummer());
+        Zug zug = speichereOderAktualisiereZug(fahrt.getZug());
+        fahrt.setZug(zug);
+        List<Fahrt> vorhandene = fahrtRepository.findByZugZugNummer(zug.getZugNummer());
         Optional<Fahrt> treffer = vorhandene.stream()
                 .filter(f -> Objects.equals(f.getAbfahrtszeitPlan(), fahrt.getAbfahrtszeitPlan())
                         && Objects.equals(f.getAnkunftszeitPlan(), fahrt.getAnkunftszeitPlan()))
                 .findFirst();
         if (treffer.isPresent()) {
             Fahrt bestehende = treffer.get();
-            bestehende.setZugTyp(fahrt.getZugTyp());
             bestehende.setStartBahnhof(fahrt.getStartBahnhof());
             bestehende.setZielBahnhof(fahrt.getZielBahnhof());
             bestehende.setAbfahrtszeitIst(fahrt.getAbfahrtszeitIst());
             bestehende.setAnkunftszeitIst(fahrt.getAnkunftszeitIst());
-            bestehende.setVerspaetungMinuten(fahrt.getVerspaetungMinuten());
-            bestehende.setStatus(fahrt.getStatus());
             bestehende.setTimestamp(LocalDateTime.now());
             fahrtRepository.save(bestehende);
         } else {
@@ -102,11 +114,16 @@ public class TimetableService {
         }
     }
 
-    private Integer verspaetungMinuten(LocalDateTime plan, LocalDateTime ist) {
-        if (plan == null || ist == null) {
-            return null;
+    private Zug speichereOderAktualisiereZug(Zug zug) {
+        Zug bestehender = zugRepository.findById(zug.getZugNummer()).orElse(null);
+        if (bestehender == null) {
+            return zugRepository.save(zug);
         }
-        return (int) Duration.between(plan, ist).toMinutes();
+        if (zug.getZugTyp() != null && !zug.getZugTyp().equals(bestehender.getZugTyp())) {
+            bestehender.setZugTyp(zug.getZugTyp());
+            return zugRepository.save(bestehender);
+        }
+        return bestehender;
     }
 
     private LocalDateTime parseZeit(String zeit) {
