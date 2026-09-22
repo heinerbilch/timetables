@@ -31,7 +31,8 @@ class BahnhofSeederTest {
     @Test
     void seedAktualisiertNameUndRangBeiAbweichung() {
         BahnhofEntity bestehend = new BahnhofEntity("8002549", "Hamburg", BahnhofSeeder.TYP_HBF, 99);
-        when(bahnhofRepository.findById(any())).thenReturn(Optional.of(bestehend));
+        when(bahnhofRepository.findById(any())).thenReturn(Optional.empty());
+        when(bahnhofRepository.findById("8002549")).thenReturn(Optional.of(bestehend));
 
         seeder.seed();
 
@@ -43,7 +44,8 @@ class BahnhofSeederTest {
     @Test
     void seedFuelltNullFelderNach() {
         BahnhofEntity bestehend = new BahnhofEntity("8002549", "Hamburg Hbf", null, null);
-        when(bahnhofRepository.findById(any())).thenReturn(Optional.of(bestehend));
+        when(bahnhofRepository.findById(any())).thenReturn(Optional.empty());
+        when(bahnhofRepository.findById("8002549")).thenReturn(Optional.of(bestehend));
 
         seeder.seed();
 
