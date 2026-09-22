@@ -91,3 +91,5 @@ src/main/resources/           # application.yml
   versionierte SQL-Dateien hinzufügen (`V2__...`, `V3__...` usw.).
 - Die unterstützten Bahnhöfe mit EVA-Nummer (Haupt-ID) und optionaler S-Bahn-Nummer sind im
   Enum `bahnclient/Bahnhof` hinterlegt. Der Scheduler ruft derzeit `Bahnhof.HAMBURG_HBF` ab.
+- Beim Start prüft `BahnhofVerifikation` die hinterlegten EVA-Nummern gegen die API
+  (`/station/{eva}`) und loggt Warnungen bei Abweichungen; der Start bricht dabei nie ab.
