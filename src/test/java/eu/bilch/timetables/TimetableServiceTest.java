@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import eu.bilch.timetables.bahnclient.Arrival;
 import eu.bilch.timetables.bahnclient.Departure;
 import eu.bilch.timetables.bahnclient.Stop;
+import eu.bilch.timetables.bahnclient.Timetable;
 import eu.bilch.timetables.bahnclient.TrainLine;
 import eu.bilch.timetables.model.Fahrt;
 import eu.bilch.timetables.model.Zug;

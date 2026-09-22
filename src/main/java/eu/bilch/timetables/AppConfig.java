@@ -31,7 +31,7 @@ public class AppConfig {
                                                 .builder()
                                                 .codecs(configurer -> {
                                                         configurer.defaultCodecs().jaxb2Decoder(new Jaxb2XmlDecoder());
-                                                        configurer.defaultCodecs().maxInMemorySize(500 * 1024);
+                                                        configurer.defaultCodecs().maxInMemorySize(1000 * 1024);
                                                 })
                                                 .build())
                                 .build();
