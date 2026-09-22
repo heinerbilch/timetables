@@ -1,51 +1,54 @@
 package eu.bilch.timetables.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "fahrten")
 public class Fahrt {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fahrtId;
 
-    private String zugNummer;
-    private String zugTyp;
+    @ManyToOne
+    @JoinColumn(name = "zug_nummer", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_fahrt_zug"))
+    private Zug zug;
+
     private String startBahnhof;
     private String zielBahnhof;
     private LocalDateTime abfahrtszeitPlan;
     private LocalDateTime ankunftszeitPlan;
     private LocalDateTime abfahrtszeitIst;
     private LocalDateTime ankunftszeitIst;
-    private Integer verspaetungMinuten;
-    private String status;
     private LocalDateTime timestamp;
 
-    // Standard-Konstruktor
     public Fahrt() {
         this.timestamp = LocalDateTime.now();
     }
 
-    // Konstruktor mit allen Feldern
-    public Fahrt(String zugNummer, String zugTyp, String startBahnhof, String zielBahnhof,
+    public Fahrt(Zug zug, String startBahnhof, String zielBahnhof,
             LocalDateTime abfahrtszeitPlan, LocalDateTime ankunftszeitPlan,
-            LocalDateTime abfahrtszeitIst, LocalDateTime ankunftszeitIst,
-            Integer verspaetungMinuten, String status) {
-        this.zugNummer = zugNummer;
-        this.zugTyp = zugTyp;
+            LocalDateTime abfahrtszeitIst, LocalDateTime ankunftszeitIst) {
+        this.zug = zug;
         this.startBahnhof = startBahnhof;
         this.zielBahnhof = zielBahnhof;
         this.abfahrtszeitPlan = abfahrtszeitPlan;
         this.ankunftszeitPlan = ankunftszeitPlan;
         this.abfahrtszeitIst = abfahrtszeitIst;
         this.ankunftszeitIst = ankunftszeitIst;
-        this.verspaetungMinuten = verspaetungMinuten;
-        this.status = status;
         this.timestamp = LocalDateTime.now();
     }
 
-    // Getter und Setter
     public Long getFahrtId() {
         return fahrtId;
     }
@@ -54,20 +57,12 @@ public class Fahrt {
         this.fahrtId = fahrtId;
     }
 
-    public String getZugNummer() {
-        return zugNummer;
+    public Zug getZug() {
+        return zug;
     }
 
-    public void setZugNummer(String zugNummer) {
-        this.zugNummer = zugNummer;
-    }
-
-    public String getZugTyp() {
-        return zugTyp;
-    }
-
-    public void setZugTyp(String zugTyp) {
-        this.zugTyp = zugTyp;
+    public void setZug(Zug zug) {
+        this.zug = zug;
     }
 
     public String getStartBahnhof() {
@@ -118,22 +113,6 @@ public class Fahrt {
         this.ankunftszeitIst = ankunftszeitIst;
     }
 
-    public Integer getVerspaetungMinuten() {
-        return verspaetungMinuten;
-    }
-
-    public void setVerspaetungMinuten(Integer verspaetungMinuten) {
-        this.verspaetungMinuten = verspaetungMinuten;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
@@ -146,16 +125,13 @@ public class Fahrt {
     public String toString() {
         return "Fahrt{" +
                 "fahrtId=" + fahrtId +
-                ", zugNummer='" + zugNummer + '\'' +
-                ", zugTyp='" + zugTyp + '\'' +
+                ", zug=" + zug +
                 ", startBahnhof='" + startBahnhof + '\'' +
                 ", zielBahnhof='" + zielBahnhof + '\'' +
                 ", abfahrtszeitPlan=" + abfahrtszeitPlan +
                 ", ankunftszeitPlan=" + ankunftszeitPlan +
                 ", abfahrtszeitIst=" + abfahrtszeitIst +
                 ", ankunftszeitIst=" + ankunftszeitIst +
-                ", verspaetungMinuten=" + verspaetungMinuten +
-                ", status='" + status + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }

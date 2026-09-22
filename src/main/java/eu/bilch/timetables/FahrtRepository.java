@@ -7,5 +7,5 @@ import eu.bilch.timetables.model.Fahrt;
 
 public interface FahrtRepository extends JpaRepository<Fahrt, Long> {
 
-    List<Fahrt> findByZugNummer(String zugNummer);
+    List<Fahrt> findByZugZugNummer(String zugNummer);
 }
