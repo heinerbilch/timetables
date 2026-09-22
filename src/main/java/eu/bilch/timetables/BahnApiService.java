@@ -100,7 +100,7 @@ public class BahnApiService {
      */
     public Timetable fetchPlan(String station, String date, String hour) {
         return webClient.get()
-                .uri("/plan/" + date + "/" + hour)
+                .uri("/plan/" + station + "/" + date + "/" + hour)
                 .retrieve()
                 .bodyToMono(Timetable.class)
                 .block();
