@@ -96,10 +96,6 @@ public class Station {
     @Override
     public String toString() {
         return "Station [p=" + p + ", meta=" + meta + ", name=" + name + ", eva=" + eva + ", ds100=" + ds100 + ", db="
-                + db + ", creationTs=" + creationTs + ", getP()=" + getP() + ", getMeta()=" + getMeta() + ", getName()="
-                + getName() + ", getEva()=" + getEva() + ", getDs100()=" + getDs100() + ", isDb()=" + isDb()
-                + ", getCreationTsAsString()=" + getCreationTsAsString() + ", getCreationTs()=" + getCreationTs()
-                + ", getClass()=" + getClass() + ", hashCode()=" + hashCode() + ", toString()=" + super.toString()
-                + "]";
+                + db + ", creationTs=" + creationTs + "]";
     }
 }
