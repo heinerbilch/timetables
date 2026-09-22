@@ -10,11 +10,6 @@ spring:
             ddl-auto: update
         show-sql: true
         open-in-view: false
-    rabbitmq:
-        host: localhost
-        port: 5672
-        username: guest
-        password: guest
     codec:
         max-in-memory-size: 500KB
 
