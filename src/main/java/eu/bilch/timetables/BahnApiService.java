@@ -1,55 +1,108 @@
 package eu.bilch.timetables;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-
 import eu.bilch.timetables.bahnclient.Stations;
 import eu.bilch.timetables.bahnclient.Timetable;
-import reactor.core.publisher.Mono;
 
+/**
+ *
+ * BahnApiService
+ *
+ * passenger information service for train stations operated by DB
+ * Station&Service AG
+ */
 @Service
 public class BahnApiService {
     private final WebClient webClient;
-    private final Logger logger = LoggerFactory.getLogger(BahnApiService.class);
 
     public BahnApiService(WebClient webClient) {
         this.webClient = webClient;
     }
 
-    @Scheduled(fixedRate = 100000) // 10 Sekunden
-    public void fetchAndPublishFahrten() {
-        try {
-            Stations response = webClient.get()
-                    .uri("/station/BLS")
-                    .retrieve()
-                    .bodyToMono(Stations.class)
-                    .block(); // Blockiert, um synchron zu arbeiten (für Demo okay)
-            logger.info("Empfangene Nachricht: {}", response);
-        } catch (WebClientRequestException e) {
-            logger.warn("I/O Problem {}", e.getLocalizedMessage());
-        }
+    /**
+     * Allows access to information about a station.
+     *
+     * @param station can be a station name (prefix), eva number, ds100/rl100 code,
+     *                wildcard (*); doesn't seem to work with umlauten in station
+     *                name (prefix)
+     * @return all matching stations
+     */
+    public Stations fetchStations(String station) {
+        return webClient.get()
+                .uri("/station/" + station)
+                .retrieve()
+                .bodyToMono(Stations.class)
+                .block();
     }
 
-    public void fetchTimetable() {
-    // Verwendung
-    Mono<Timetable> timetableMono = webClient.get()
-            .uri("/fchg/8000001")
-            .retrieve()
-            .bodyToMono(Timetable.class);
-    logger.info("Mono FCHG Data {}", timetableMono.block());
+    /**
+     * Returns a Timetable object (see Timetable) that contains all known changes
+     * for the station given by evaNo. The data includes all known changes from now
+     * on until ndefinitely into the future. Once changes become obsolete (because
+     * their trip departs from the station) they are removed from this resource.
+     * Changes may include messages. On event level, they usually contain one or
+     * more of the 'changed' attributes ct, cp, cs or cpth. Changes may also include
+     * 'planned' attributes if there is no associated planned data for the change
+     * (e.g. an unplanned stop or trip). Full changes are updated every 30s and
+     * should be cached for that period by web caches.
+     *
+     * @param station eva number of the station
+     * @return a timetable
+     */
+    public Timetable fetchFchg(String station) {
+        return webClient.get()
+                .uri("/fchg/" + station)
+                .retrieve()
+                .bodyToMono(Timetable.class)
+                .block();
     }
 
-//    @Scheduled(fixedRate = 100000) // 10 Sekunden
-    public void fetchRchg() {
-    // Verwendung
-    Mono<Timetable> timetableMono = webClient.get()
-            .uri("/rchg/8000105")
-            .retrieve()
-            .bodyToMono(Timetable.class);
-    logger.info("Mono RCHG Data {}", timetableMono.block());
+    /**
+     * Returns a Timetable object (see Timetable) that contains all recent changes
+     * for the station given by evaNo. Recent changes are always a subset of the
+     * full changes. They may equal full changes but are typically much smaller.
+     * Data includes only those changes that became known within the last 2 minutes.
+     * A client that updates its state in intervals of less than 2 minutes should
+     * load full changes initially and then proceed to periodically load only the
+     * recent changes in order to save bandwidth.
+     * Recent changes are updated every 30s as well and should be cached for that
+     * period by web caches.
+     *
+     * @param station eva number of the station
+     * @return a timetable
+     */
+    public Timetable fetchRchg(String station) {
+        return webClient.get()
+                .uri("/rchg/" + station)
+                .retrieve()
+                .bodyToMono(Timetable.class)
+                .block();
+    }
+
+    /**
+     * Returns a Timetable object (see Timetable) that contains planned data for the
+     * specified station (evaNo) within the hourly time slice given by date (format
+     * YYMMDD) and hour (format HH). The data includes stops for all trips that
+     * arrive or depart within that slice. There is a small overlap between slices
+     * since some trips arrive in one slice and depart in another.
+     * Planned data does never contain messages. On event level, planned data
+     * contains the 'plannned' attributes pt, pp, ps and ppth while the 'changed'
+     * attributes ct, cp, cs and cpth are absent.
+     * Planned data is generated many hours in advance and is static, i.e. it does
+     * never change. It should be cached by web caches.public interface allows
+     * access to information about a station.
+     *
+     * @param station eva number of the station
+     * @param date    hourly time slice by date
+     * @param hour    hourly time slice by hour
+     * @return a timetable
+     */
+    public Timetable fetchPlan(String station, String date, String hour) {
+        return webClient.get()
+                .uri("/plan/" + date + "/" + hour)
+                .retrieve()
+                .bodyToMono(Timetable.class)
+                .block();
     }
 }

@@ -21,7 +21,7 @@ spring:
 # DB Station&Service AG
 bahn:
     api:
-        client-id: ea21ead4c40f5012665229379875678a
+        client-id: ${BAHN_CLIENT_ID}
         key: ${BAHN_CLIENT_SECRET}
 
 # Optional: Logging-Konfiguration
