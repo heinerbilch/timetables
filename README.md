@@ -22,7 +22,7 @@ abruft, in ein eigenes Datenmodell überführt und in PostgreSQL speichert.
 | Tabelle  | Spalten                                                                              |
 |----------|--------------------------------------------------------------------------------------|
 | `zug`    | `zugNummer` (PK), `zugTyp`                                                            |
-| `fahrten`| `fahrtId` (PK), `zug_nummer` (FK → `zug`), `startBahnhof`, `zielBahnhof`, `abfahrtszeitPlan`, `ankunftszeitPlan`, `abfahrtszeitIst`, `ankunftszeitIst`, `timestamp` |
+| `fahrten`| `fahrtId` (PK), `zug_nummer` (FK → `zug`), `eva_nummer` (FK → `bahnhof`), `startBahnhof`, `zielBahnhof`, `abfahrtszeitPlan`, `ankunftszeitPlan`, `abfahrtszeitIst`, `ankunftszeitIst`, `timestamp` |
 | `bahnhof`| `evaNummer` (PK), `name`, `typ` (nullable, `HBF`/`SBAHN`), `rang` (nullable) |
 
 Abgeleitete Attribute wie Verspätung oder Status werden bewusst nicht gespeichert, sondern zur

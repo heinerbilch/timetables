@@ -2,20 +2,26 @@ package eu.bilch.timetables;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import org.mockito.ArgumentCaptor;
 
 import eu.bilch.timetables.bahnclient.Arrival;
 import eu.bilch.timetables.bahnclient.Departure;
 import eu.bilch.timetables.bahnclient.Stop;
 import eu.bilch.timetables.bahnclient.Timetable;
 import eu.bilch.timetables.bahnclient.TrainLine;
+import eu.bilch.timetables.model.BahnhofEntity;
 import eu.bilch.timetables.model.Fahrt;
 import eu.bilch.timetables.model.Zug;
 
@@ -200,5 +206,63 @@ class TimetableServiceTest {
 
         assertThatCode(() -> serviceMitApi.aktualisiereFahrtenFuerEva("8000105"))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    void aktualisiereFahrtenFuerEvaSetztBahnhofAnFahrt() {
+        BahnApiService api = mock(BahnApiService.class);
+        BahnhofRepository bahnhofRepository = mock(BahnhofRepository.class);
+        FahrtRepository fahrtRepository = mock(FahrtRepository.class);
+        ZugRepository zugRepository = mock(ZugRepository.class);
+        BahnhofEntity hamburg = new BahnhofEntity("8002549", "Hamburg Hbf", "HBF", 1);
+
+        Timetable timetable = new Timetable();
+        Stop stop = new Stop();
+        Departure abfahrt = new Departure();
+        abfahrt.setL("ICE 500");
+        abfahrt.setPt("2609221200");
+        abfahrt.setPpth("Hamburg Hbf|Kiel Hbf");
+        stop.setDepartures(List.of(abfahrt));
+        timetable.setStops(List.of(stop));
+
+        when(api.fetchFchg("8002549")).thenReturn(timetable);
+        when(bahnhofRepository.findById("8002549")).thenReturn(Optional.of(hamburg));
+        when(fahrtRepository.findByZugZugNummer("ICE 500")).thenReturn(List.of());
+        when(zugRepository.findById("ICE 500")).thenReturn(Optional.empty());
+        when(zugRepository.save(any(Zug.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        TimetableService serviceMitApi = new TimetableService(api, bahnhofRepository,
+                fahrtRepository, zugRepository);
+
+        serviceMitApi.aktualisiereFahrtenFuerEva("8002549");
+
+        ArgumentCaptor<Fahrt> captor = ArgumentCaptor.forClass(Fahrt.class);
+        verify(fahrtRepository).save(captor.capture());
+        assertThat(captor.getValue().getBahnhof()).isEqualTo(hamburg);
+        assertThat(captor.getValue().getBahnhof().getEvaNummer()).isEqualTo("8002549");
+    }
+
+    @Test
+    void aktualisiereFahrtenFuerEvaOhneBahnhofEintragUeberspringt() {
+        BahnApiService api = mock(BahnApiService.class);
+        BahnhofRepository bahnhofRepository = mock(BahnhofRepository.class);
+        FahrtRepository fahrtRepository = mock(FahrtRepository.class);
+
+        Timetable timetable = new Timetable();
+        Stop stop = new Stop();
+        Departure abfahrt = new Departure();
+        abfahrt.setL("ICE 500");
+        stop.setDepartures(List.of(abfahrt));
+        timetable.setStops(List.of(stop));
+
+        when(api.fetchFchg("9999999")).thenReturn(timetable);
+        when(bahnhofRepository.findById("9999999")).thenReturn(Optional.empty());
+
+        TimetableService serviceMitApi = new TimetableService(api, bahnhofRepository,
+                fahrtRepository, null);
+
+        serviceMitApi.aktualisiereFahrtenFuerEva("9999999");
+
+        verify(fahrtRepository, never()).save(any());
     }
 }
