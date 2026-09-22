@@ -85,7 +85,9 @@ src/main/resources/           # application.yml
 
 ## Hinweise
 
-- Mit `ddl-auto: update` legt Hibernate das Schema automatisch an. Schema-Änderungen sollten
-  langfristig über ein Migrationstool (z. B. Flyway) versioniert werden.
+- **Datenbank-Migration:** Das Schema wird von [Flyway](https://flywaydb.org) verwaltet. Migrationen
+  liegen in `src/main/resources/db/migration` (`V1__init.sql` = aktuelles Baseline-Schema). Hibernate
+  prüft das Schema beim Start nur noch (`ddl-auto: validate`). Neue Schema-Änderungen als weitere
+  versionierte SQL-Dateien hinzufügen (`V2__...`, `V3__...` usw.).
 - Die abgerufene Station (derzeit Hamburg Hbf, EVA 8000105) ist als Konstante in
   `TimetableService` hinterlegt.
