@@ -7,7 +7,7 @@ abruft, in ein eigenes Datenmodell überführt und in PostgreSQL speichert.
 ## Funktionen
 
 - **Periodischer Datenabruf:** Ein Scheduler (`TimetableService`) lädt alle 60 Sekunden die
-  vollständigen Änderungsdaten (FCHG – *full changes*) für Hamburg Hbf (EVA 8000105).
+  vollständigen Änderungsdaten (FCHG – *full changes*) für Hamburg Hbf (EVA 8002549).
 - **Mapping:** Die XML-Antwort der API (`Timetable` → `Stop` → `Arrival`/`Departure`) wird auf
   das JPA-Datenmodell (`Zug`, `Fahrt`) abgebildet – inklusive Zugnummer, Zugtyp, Start- und
   Zielbahnhof, Plan- und Ist-Zeiten.
@@ -89,5 +89,5 @@ src/main/resources/           # application.yml
   liegen in `src/main/resources/db/migration` (`V1__init.sql` = aktuelles Baseline-Schema). Hibernate
   prüft das Schema beim Start nur noch (`ddl-auto: validate`). Neue Schema-Änderungen als weitere
   versionierte SQL-Dateien hinzufügen (`V2__...`, `V3__...` usw.).
-- Die abgerufene Station (derzeit Hamburg Hbf, EVA 8000105) ist als Konstante in
-  `TimetableService` hinterlegt.
+- Die unterstützten Bahnhöfe mit EVA-Nummer (Haupt-ID) und optionaler S-Bahn-Nummer sind im
+  Enum `bahnclient/Bahnhof` hinterlegt. Der Scheduler ruft derzeit `Bahnhof.HAMBURG_HBF` ab.

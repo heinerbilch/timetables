@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import eu.bilch.timetables.bahnclient.Arrival;
+import eu.bilch.timetables.bahnclient.Bahnhof;
 import eu.bilch.timetables.bahnclient.Departure;
 import eu.bilch.timetables.bahnclient.Stop;
 import eu.bilch.timetables.bahnclient.Timetable;
@@ -24,7 +25,6 @@ import eu.bilch.timetables.model.Zug;
 @Service
 public class TimetableService {
 
-    private static final String HAMBURG_HBF = "8002549";
     private static final DateTimeFormatter ZEIT_FORMAT = DateTimeFormatter.ofPattern("yyMMddHHmm");
 
     private final BahnApiService bahnApiService;
@@ -42,7 +42,7 @@ public class TimetableService {
     @Scheduled(initialDelay = 3000, fixedDelay = 60000)
     public void aktualisiereFahrten() {
         try {
-            Timetable timetable = bahnApiService.fetchFchg(HAMBURG_HBF);
+            Timetable timetable = bahnApiService.fetchFchg(Bahnhof.HAMBURG_HBF.getEvaNummer());
             if (timetable == null || timetable.getStops() == null) {
                 return;
             }
